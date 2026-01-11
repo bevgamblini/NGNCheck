@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGNCheck</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Главный экран с приветствием -->
+    <section class="welcome-section" id="welcome">
+        <div class="container">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Добро пожаловать!</h1>
+                <p class="welcome-text">
+                    NGNCheck - это инструмент для анализа технического состояния электродвигателей. 
+                    Для начала работы нужно выбрать модель двигателя и внести все необходимые показатели 
+                    для оценки технического состояния оборудования и получения рекомендаций.
+                </p>
+                <button class="start-button" onclick="scrollToModels()">
+                    <span>Приступить</span>
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Секция с моделями двигателей -->
+    <section class="models-section" id="models">
+        <div class="container">
+            <h2 class="section-title">Выберите модель двигателя</h2>
+            <p class="section-subtitle">Для анализа технического состояния выберите модель из списка доступных</p>
+            
+            <div class="models-grid">
+                <!-- Карточка двигателя АИР80В2 -->
+                <div class="motor-card" onclick="goToAir80v2Page()">
+                    <div class="motor-image-container">
+                        <img src="static/img/air80v2.jpg" alt="АИР80В2" class="motor-image">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="motor-model">АИР80В2</h3>
+                        <div class="motor-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">Мощность:</span>
+                                <span class="spec-value">2.2 кВт</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Напряжение:</span>
+                                <span class="spec-value">220/380 В</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Ток:</span>
+                                <span class="spec-value">4.85 А</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Обороты:</span>
+                                <span class="spec-value">2850 об/мин</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="select-text">Выбрать для анализа</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка двигателя АИР200М8 -->
+                <div class="motor-card" onclick="goToAir200m8Page()">
+                    <div class="motor-image-container">
+                        <img src="static/img/air200m8.jpg" alt="АИР200М8" class="motor-image">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="motor-model">АИР200М8</h3>
+                        <div class="motor-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">Мощность:</span>
+                                <span class="spec-value">18.5 кВт</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Напряжение:</span>
+                                <span class="spec-value">380 В</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Ток:</span>
+                                <span class="spec-value">39 А</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Обороты:</span>
+                                <span class="spec-value">730 об/мин</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="select-text">Выбрать для анализа</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Заглушка для будущих двигателей -->
+                <div class="motor-card coming-soon">
+                    <div class="card-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="motor-model">Другие модели</h3>
+                        <p class="coming-soon-text">Скоро будут добавлены</p>
+                        <div class="card-footer">
+                            <span class="select-text">Доступно в обновлениях</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>NGNCheck</h3>
+                    <p>Система анализа технического состояния электродвигателей</p>
+                </div>
+                <div class="footer-info">
+                    <p>Курсовой проект по разработке графического интерфейса</p>
+                    <p class="copyright">© 2026 Все права защищены</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Функция для прокрутки к секции с моделями
+        function scrollToModels() {
+            document.getElementById('models').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Функция для перехода на страницу двигателя АИР80В2
+        function goToAir80v2Page() {
+            window.location.href = 'air80v2.html';
+        }
+
+        function goToAir200m8Page() {
+            window.location.href = 'air200m8.html';
+        }
+
+        // Автоматическая прокрутка индикатора при загрузке
+        window.addEventListener('load', function() {
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            setTimeout(() => {
+                scrollIndicator.style.opacity = '1';
+                scrollIndicator.style.transform = 'translateY(0)';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

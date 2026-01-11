@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGNCheck - Анализ двигателя</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/engine.css') }}">
+    <style>
+        /* Сбрасываем отступы для body */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="engine-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>На главную</span>
+                </a>
+                <h1 class="page-title">Анализ технического состояния</h1>
+                <div class="header-actions">
+                    <button class="action-button" id="saveReport">
+                        <i class="fas fa-save"></i>
+                        <span>Сохранить отчет</span>
+                    </button>
+                    <button class="action-button" id="printReport">
+                        <i class="fas fa-print"></i>
+                        <span>Печать</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="engine-main">
+        <div class="container">
+            <!-- Основной контент - две колонки -->
+            <div class="main-content">
+                <!-- Левая колонка: Изображение и ввод данных -->
+                <div class="left-column">
+                    <!-- Информация о двигателе -->
+                    <section class="motor-info-section">
+                        <div class="section-header">
+                            <h2>{% block motor_title %}{% endblock %}</h2>
+                            <span class="status-badge status-idle">Ожидает анализа</span>
+                        </div>
+                        
+                        <!-- Изображение двигателя -->
+                        <div class="motor-image-large">
+                            {% block motor_img %}{% endblock %}
+                        </div>
+                    </section>
+
+                    <!-- Ввод данных для анализа -->
+                    <section class="input-section">
+                        <h2>Введите измеренные параметры</h2>
+                        <p class="section-description">Введите фактические значения для сравнения с номинальными характеристиками</p>
+                        
+                        <form class="analysis-form" id="analysisForm">
+                            <div class="form-group">
+                                <label for="current">
+                                    <i class="fas fa-bolt"></i>
+                                    Ток статора, А
+                                </label>
+                                <input type="number" id="current" step="0.1" placeholder="Введите значение тока" required>
+                                <div class="input-hint">Номинальное: {% block nominal_current %}3.6/6.1 А{% endblock %}</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="voltage">
+                                    <i class="fas fa-plug"></i>
+                                    Напряжение, В
+                                </label>
+                                <input type="number" id="voltage" step="1" placeholder="Введите значение напряжения" required>
+                                <div class="input-hint">Номинальное: {% block nominal_voltage %}220/380 В{% endblock %}</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vibration">
+                                    <i class="fas fa-wave-square"></i>
+                                    Вибрация, мм/с
+                                </label>
+                                <input type="number" id="vibration" step="0.1" placeholder="Введите значение вибрации" required>
+                                <div class="input-hint">Допустимое: {% block nominal_vibration %}2.8 мм/с{% endblock %}</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="temperature">
+                                    <i class="fas fa-thermometer-half"></i>
+                                    Температура подшипника, °C
+                                </label>
+                                <input type="number" id="temperature" step="0.1" placeholder="Введите температуру" required>
+                                <div class="input-hint">Допустимая: {% block nominal_temperature %}70°C{% endblock %}</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="isolation">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Сопротивление изоляции, МОм
+                                </label>
+                                <input type="number" id="isolation" step="0.1" placeholder="Введите сопротивление" required>
+                                <div class="input-hint">Норма: {% block nominal_isolation %}1.0 МОм{% endblock %}</div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" id="resetForm">
+                                    <i class="fas fa-redo"></i>
+                                    Сбросить
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-calculator"></i>
+                                    Выполнить анализ
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+
+                <!-- Правая колонка: Результаты анализа -->
+                <div class="right-column">
+                    <section class="analysis-results-section">
+                        <div class="results-header">
+                            <h2>Результаты анализа</h2>
+                            <div class="results-status">
+                                <span class="status-indicator status-idle"></span>
+                                <span class="status-text">Ожидание данных</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Заглушка до анализа -->
+                        <div class="results-placeholder" id="resultsPlaceholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-chart-bar"></i>
+                                <h3>Здесь появится сводка по результатам сравнения и анализа</h3>
+                                <p>Для получения результатов заполните форму слева и нажмите "Выполнить анализ"</p>
+                                <p class="placeholder-subtext">
+                                    Система сравнит введенные значения с номинальными параметрами двигателя 
+                                    и предоставит рекомендации по техническому состоянию
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Контент результатов анализа -->
+                        <div class="results-content" id="resultsContent" style="display: none;">
+                            <!-- Таблица сравнения -->
+                            <div class="comparison-section">
+                                <h3>Сравнение параметров</h3>
+                                <div class="comparison-table" id="comparisonTable">
+                                    <!-- Таблица будет заполнена JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Рекомендации -->
+                            <div class="recommendations-section">
+                                <h3>Диагностика и рекомендации</h3>
+                                <div class="recommendations-content" id="recommendationsContent">
+                                    <!-- Рекомендации будут заполнены JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Детальный анализ -->
+                            <div class="detailed-analysis" id="detailedAnalysis">
+                                <h3>Детальный анализ отклонений</h3>
+                                <div class="analysis-details" id="analysisDetails">
+                                    <!-- Детали анализа будут заполнены JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer class="engine-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>NGNCheck</h2>
+                </div>
+                <div class="footer-info">
+                    <p>Система анализа технического состояния электродвигателей</p>
+                    <p>Курсовой проект по разработке графического интерфейса</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2026 Все права защищены</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="static/js/engine.js"></script>
+</body>
+</html>
