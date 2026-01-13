@@ -72,16 +72,9 @@
                                     Ток статора, А
                                 </label>
                                 <input type="number" id="current" step="0.1" placeholder="Введите значение тока" required>
-                                <div class="input-hint">Номинальное: {% block nominal_current %}3.6/6.1 А{% endblock %}</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="voltage">
-                                    <i class="fas fa-plug"></i>
-                                    Напряжение, В
-                                </label>
-                                <input type="number" id="voltage" step="1" placeholder="Введите значение напряжения" required>
-                                <div class="input-hint">Номинальное: {% block nominal_voltage %}220/380 В{% endblock %}</div>
+                                <div class="input-hint nominal-data" data-param="current" data-value="{{ nominal_current | default('4.85') }}">
+                                    Номинальное: {{ nominal_current | default('4.85') }} А
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -90,7 +83,9 @@
                                     Вибрация, мм/с
                                 </label>
                                 <input type="number" id="vibration" step="0.1" placeholder="Введите значение вибрации" required>
-                                <div class="input-hint">Допустимое: {% block nominal_vibration %}2.8 мм/с{% endblock %}</div>
+                                <div class="input-hint nominal-data" data-param="vibration" data-value="{{ nominal_vibration | default('2.8') }}">
+                                    Допустимое: {{ nominal_vibration | default('2.8') }} мм/с
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -99,7 +94,9 @@
                                     Температура подшипника, °C
                                 </label>
                                 <input type="number" id="temperature" step="0.1" placeholder="Введите температуру" required>
-                                <div class="input-hint">Допустимая: {% block nominal_temperature %}70°C{% endblock %}</div>
+                                <div class="input-hint nominal-data" data-param="temperature" data-value="{{ nominal_temperature | default('70') }}">
+                                    Допустимая: {{ nominal_temperature | default('70') }} °C
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -108,7 +105,9 @@
                                     Сопротивление изоляции, МОм
                                 </label>
                                 <input type="number" id="isolation" step="0.1" placeholder="Введите сопротивление" required>
-                                <div class="input-hint">Норма: {% block nominal_isolation %}1.0 МОм{% endblock %}</div>
+                                <div class="input-hint nominal-data" data-param="isolation" data-value="{{ nominal_isolation | default('1.22') }}">
+                                    Норма: {{ nominal_isolation | default('1.22') }} МОм
+                                </div>
                             </div>
                             
                             <div class="form-actions">
@@ -202,3 +201,4 @@
     <script src="static/js/engine.js"></script>
 </body>
 </html>
+[file content end]

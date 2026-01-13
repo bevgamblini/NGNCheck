@@ -1,6 +1,6 @@
-// Базовый скрипт для страницы анализа двигателя
-
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Скрипт engine.js загружен');
+    
     // Элементы DOM
     const analysisForm = document.getElementById('analysisForm');
     const resetFormBtn = document.getElementById('resetForm');
@@ -16,47 +16,94 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusText = document.querySelector('.status-text');
     const detailedAnalysis = document.getElementById('detailedAnalysis');
 
-    // Эталонные значения (будут заменены данными из блоков)
-    const referenceValues = {
-        current: 3.6,
-        voltage: 380,
-        vibration: 2.8,
-        temperature: 70,
-        isolation: 1.0
-    };
+    console.log('Элементы DOM найдены:', {
+        analysisForm: !!analysisForm,
+        resultsPlaceholder: !!resultsPlaceholder,
+        resultsContent: !!resultsContent
+    });
 
-    // Допустимые отклонения (%)
+    // Функция для получения номинальных значений из HTML (упрощенная)
+    function getNominalValuesFromHTML() {
+        console.log('Получение номинальных значений из HTML...');
+        
+        const referenceValues = {};
+        const nominalElements = document.querySelectorAll('.nominal-data');
+        
+        nominalElements.forEach(element => {
+            const param = element.getAttribute('data-param');
+            const rawValue = element.getAttribute('data-value');
+            
+            if (param && rawValue) {
+                // Так как в data-value только цифры, можно сразу парсить
+                const value = parseFloat(rawValue.trim());
+                if (!isNaN(value)) {
+                    referenceValues[param] = value;
+                    console.log(`Номинальное значение для ${param}: ${referenceValues[param]}`);
+                } else {
+                    console.warn(`Не удалось распарсить значение для ${param}: "${rawValue}"`);
+                }
+            }
+        });
+        
+        // Проверяем, что все значения получены
+        const requiredParams = ['current', 'vibration', 'temperature', 'isolation'];
+        const missingParams = requiredParams.filter(param => !referenceValues[param]);
+        
+        if (missingParams.length > 0) {
+            console.warn('Не все номинальные значения найдены, используются значения по умолчанию');
+            
+            // Значения по умолчанию
+            const defaultValues = {
+                current: 4.85,
+                vibration: 2.8,
+                temperature: 70,
+                isolation: 1.22
+            };
+            
+            // Используем значения по умолчанию для отсутствующих параметров
+            missingParams.forEach(param => {
+                referenceValues[param] = defaultValues[param];
+                console.log(`Используется значение по умолчанию для ${param}: ${referenceValues[param]}`);
+            });
+        }
+        
+        return referenceValues;
+    }
+    
+    // Инициализация эталонных значений
+    let referenceValues = getNominalValuesFromHTML();
+    
+    console.log('Используемые номинальные значения:', referenceValues);
+
+    // Допустимые отклонения (%) - без напряжения
     const tolerances = {
         current: 10,      // ±10%
-        voltage: 5,       // ±5%
         vibration: 20,    // ±20%
         temperature: 15,  // ±15%
         isolation: -30    // минимальный порог (-30% от номинала)
     };
 
-    // Описания параметров
+    // Описания параметров (без напряжения)
     const parameterNames = {
         current: 'Ток статора',
-        voltage: 'Напряжение',
         vibration: 'Вибрация',
         temperature: 'Температура подшипника',
         isolation: 'Сопротивление изоляции'
     };
 
-    // Единицы измерения
+    // Единицы измерения (без напряжения)
     const parameterUnits = {
         current: 'А',
-        voltage: 'В',
         vibration: 'мм/с',
         temperature: '°C',
         isolation: 'МОм'
     };
 
-    // База знаний по неисправностям
+    // База знаний по неисправностям (убраны voltage_high и voltage_low)
     const faultDatabase = {
         current_high: {
             title: "Повышенный ток статора",
-            description: "Значение тока превышает номинальное на",
+            description: "Значение тока превышает номинальное",
             causes: [
                 "Механическая перегрузка двигателя",
                 "Износ подшипников",
@@ -72,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         current_low: {
             title: "Пониженный ток статора",
-            description: "Значение тока ниже номинального на",
+            description: "Значение тока ниже номинального",
             causes: [
                 "Недогрузка двигателя",
                 "Проблемы с питающей сетью",
@@ -84,37 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 "Проверить параметры питающей сети"
             ]
         },
-        voltage_high: {
-            title: "Повышенное напряжение",
-            description: "Напряжение превышает номинальное на",
-            causes: [
-                "Нестабильность питающей сети",
-                "Неправильная настройка трансформатора",
-                "Сезонные колебания в сети"
-            ],
-            recommendations: [
-                "Установить стабилизатор напряжения",
-                "Проверить настройки питающего трансформатора",
-                "Мониторить параметры сети в течение суток"
-            ]
-        },
-        voltage_low: {
-            title: "Пониженное напряжение",
-            description: "Напряжение ниже номинального на",
-            causes: [
-                "Падение напряжения в сети",
-                "Недостаточное сечение питающих кабелей",
-                "Плохие контакты в силовой цепи"
-            ],
-            recommendations: [
-                "Проверить сечение и длину питающих кабелей",
-                "Осмотреть контакты и соединения",
-                "Рассмотреть возможность установки автотрансформатора"
-            ]
-        },
         vibration_high: {
             title: "Повышенная вибрация",
-            description: "Вибрация превышает допустимую на",
+            description: "Вибрация превышает допустимую",
             causes: [
                 "Дисбаланс ротора",
                 "Износ подшипников",
@@ -130,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         temperature_high: {
             title: "Перегрев подшипников",
-            description: "Температура превышает допустимую на",
+            description: "Температура превышает допустимую",
             causes: [
                 "Недостаточная смазка",
                 "Износ подшипников",
@@ -146,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         isolation_low: {
             title: "Снижение сопротивления изоляции",
-            description: "Сопротивление изоляции ниже нормы на",
+            description: "Сопротивление изоляции ниже нормы",
             causes: [
                 "Попадание влаги в обмотки",
                 "Старение изоляции",
@@ -163,45 +182,80 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Обработчик отправки формы
-    analysisForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Собираем данные из формы
-        const measuredValues = {
-            current: parseFloat(document.getElementById('current').value),
-            voltage: parseFloat(document.getElementById('voltage').value),
-            vibration: parseFloat(document.getElementById('vibration').value),
-            temperature: parseFloat(document.getElementById('temperature').value),
-            isolation: parseFloat(document.getElementById('isolation').value)
-        };
+    if (analysisForm) {
+        analysisForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Форма отправлена');
+            
+            try {
+                // Собираем данные из формы (без напряжения)
+                const measuredValues = {
+                    current: parseFloat(document.getElementById('current').value) || 0,
+                    vibration: parseFloat(document.getElementById('vibration').value) || 0,
+                    temperature: parseFloat(document.getElementById('temperature').value) || 0,
+                    isolation: parseFloat(document.getElementById('isolation').value) || 0
+                };
 
-        // Выполняем анализ
-        const analysisResults = analyzeParameters(measuredValues);
-        
-        // Отображаем результаты
-        displayResults(analysisResults);
-        
-        // Прокручиваем к результатам
-        resultsContent.scrollIntoView({ behavior: 'smooth' });
-    });
+                console.log('Введенные значения:', measuredValues);
+                console.log('Номинальные значения для сравнения:', referenceValues);
+
+                // Проверка на нулевые значения
+                let hasEmptyFields = false;
+                Object.keys(measuredValues).forEach(key => {
+                    if (measuredValues[key] === 0 || isNaN(measuredValues[key])) {
+                        console.error(`Поле ${key} не заполнено или содержит 0`);
+                        hasEmptyFields = true;
+                    }
+                });
+
+                if (hasEmptyFields) {
+                    alert('Пожалуйста, заполните все поля корректными числовыми значениями!');
+                    return;
+                }
+
+                // Выполняем анализ
+                const analysisResults = analyzeParameters(measuredValues);
+                console.log('Результаты анализа:', analysisResults);
+                
+                // Отображаем результаты
+                displayResults(analysisResults);
+                
+                // Прокручиваем к результатам
+                resultsContent.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Ошибка при анализе:', error);
+                alert('Произошла ошибка при анализе данных. Проверьте правильность введенных значений.');
+            }
+        });
+    } else {
+        console.error('Элемент analysisForm не найден!');
+    }
 
     // Сброс формы
-    resetFormBtn.addEventListener('click', function() {
-        analysisForm.reset();
-        resetAnalysis();
-    });
+    if (resetFormBtn) {
+        resetFormBtn.addEventListener('click', function() {
+            console.log('Сброс формы');
+            if (analysisForm) analysisForm.reset();
+            resetAnalysis();
+        });
+    }
 
     // Сохранение отчета
-    saveReportBtn.addEventListener('click', function() {
-        generateReport();
-    });
+    if (saveReportBtn) {
+        saveReportBtn.addEventListener('click', function() {
+            generateReport();
+        });
+    }
 
     // Печать отчета
-    printReportBtn.addEventListener('click', function() {
-        window.print();
-    });
+    if (printReportBtn) {
+        printReportBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
 
-    // Функция анализа параметров
+    // Функция анализа параметров (без напряжения)
     function analyzeParameters(measured) {
         const results = [];
         const deviations = [];
@@ -231,12 +285,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     faultType = 'isolation_low';
                 }
             } else {
-                if (Math.abs(deviation) > Math.abs(tolerance)) {
+                const absDeviation = Math.abs(deviation);
+                const absTolerance = Math.abs(tolerance);
+                
+                if (absDeviation > absTolerance) {
                     deviationType = 'error';
                     if (param === 'current' && deviation > 0) faultType = 'current_high';
                     if (param === 'current' && deviation < 0) faultType = 'current_low';
-                    if (param === 'voltage' && deviation > 0) faultType = 'voltage_high';
-                    if (param === 'voltage' && deviation < 0) faultType = 'voltage_low';
                     if (param === 'vibration' && deviation > 0) faultType = 'vibration_high';
                     if (param === 'temperature' && deviation > 0) faultType = 'temperature_high';
                 }
@@ -279,26 +334,30 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Отображение результатов
+    // Отображение результатов (без изменений в логике, только убраны ссылки на напряжение)
     function displayResults(analysis) {
+        console.log('Отображение результатов:', analysis);
+        
         // Скрываем заглушку и показываем контент
-        resultsPlaceholder.style.display = 'none';
-        resultsContent.style.display = 'flex';
+        if (resultsPlaceholder) resultsPlaceholder.style.display = 'none';
+        if (resultsContent) resultsContent.style.display = 'flex';
         
         // Заполняем таблицу сравнения
-        comparisonTable.innerHTML = '';
-        analysis.results.forEach(result => {
-            const row = document.createElement('div');
-            row.className = `comparison-row ${result.hasError ? 'error' : ''}`;
-            
-            row.innerHTML = `
-                <div class="param-name">${result.name}</div>
-                <div class="nominal-value">${result.reference}</div>
-                <div class="measured-value ${result.hasError ? 'error' : ''}">${result.measured}</div>
-            `;
-            
-            comparisonTable.appendChild(row);
-        });
+        if (comparisonTable) {
+            comparisonTable.innerHTML = '';
+            analysis.results.forEach(result => {
+                const row = document.createElement('div');
+                row.className = `comparison-row ${result.hasError ? 'error' : ''}`;
+                
+                row.innerHTML = `
+                    <div class="param-name">${result.name}</div>
+                    <div class="nominal-value">${result.reference}</div>
+                    <div class="measured-value ${result.hasError ? 'error' : ''}">${result.measured}</div>
+                `;
+                
+                comparisonTable.appendChild(row);
+            });
+        }
         
         // Формируем рекомендации
         let recommendationsHTML = '';
@@ -320,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             // Скрываем детальный анализ, если нет отклонений
-            detailedAnalysis.style.display = 'none';
+            if (detailedAnalysis) detailedAnalysis.style.display = 'none';
         } else {
             recommendationsHTML = `
                 <h4>⚠️ Обнаружены отклонения от номинальных значений</h4>
@@ -336,60 +395,86 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             // Показываем детальный анализ
-            detailedAnalysis.style.display = 'block';
-            
-            // Заполняем детальный анализ
-            let analysisDetailsHTML = '';
-            analysis.faults.forEach(fault => {
-                const faultInfo = faultDatabase[fault.type];
-                if (faultInfo) {
-                    analysisDetailsHTML += `
-                        <div class="analysis-item error">
-                            <h4>${faultInfo.title}</h4>
-                            <p><strong>Отклонение:</strong> ${fault.deviation > 0 ? '+' : ''}${fault.deviation.toFixed(1)}% (измерено: ${fault.measured} ${parameterUnits[fault.param]}, номинал: ${fault.reference} ${parameterUnits[fault.param]})</p>
-                            <p><strong>Возможные причины:</strong> ${faultInfo.causes.join('; ')}</p>
-                            <p><strong>Рекомендации:</strong> ${faultInfo.recommendations.join('; ')}</p>
-                        </div>
-                    `;
-                }
-            });
-            analysisDetails.innerHTML = analysisDetailsHTML;
+            if (detailedAnalysis) {
+                detailedAnalysis.style.display = 'block';
+                
+                // Заполняем детальный анализ
+                let analysisDetailsHTML = '';
+                analysis.faults.forEach(fault => {
+                    const faultInfo = faultDatabase[fault.type];
+                    if (faultInfo) {
+                        analysisDetailsHTML += `
+                            <div class="analysis-item error">
+                                <h4>${faultInfo.title}</h4>
+                                <p><strong>Параметр:</strong> ${parameterNames[fault.param]}</p>
+                                <p><strong>Отклонение:</strong> ${fault.deviation > 0 ? '+' : ''}${fault.deviation.toFixed(1)}% (измерено: ${fault.measured} ${parameterUnits[fault.param]}, номинал: ${fault.reference} ${parameterUnits[fault.param]})</p>
+                                <p><strong>Возможные причины:</strong> ${faultInfo.causes.join('; ')}</p>
+                                <p><strong>Рекомендации:</strong> ${faultInfo.recommendations.join('; ')}</p>
+                            </div>
+                        `;
+                    }
+                });
+                analysisDetails.innerHTML = analysisDetailsHTML;
+            }
         }
         
-        recommendationsContent.innerHTML = recommendationsHTML;
+        if (recommendationsContent) {
+            recommendationsContent.innerHTML = recommendationsHTML;
+        }
         
         // Обновляем статус
         updateStatus(analysis.overallStatus);
     }
 
-    // Обновление статуса
+    // Обновление статуса (без изменений)
     function updateStatus(status) {
+        console.log('Обновление статуса:', status);
+        
         // Обновляем бейдж в заголовке
-        statusBadge.className = `status-badge status-${status}`;
-        statusBadge.textContent = status === 'good' ? 'В норме' : 'Требует внимания';
+        if (statusBadge) {
+            statusBadge.className = `status-badge status-${status}`;
+            statusBadge.textContent = status === 'good' ? 'В норме' : 'Требует внимания';
+        }
         
         // Обновляем индикатор в правой колонке
-        statusIndicator.className = `status-indicator status-${status}`;
-        statusText.textContent = status === 'good' ? 'Все параметры в норме' : 'Обнаружены отклонения';
-        statusText.style.color = status === 'good' ? '#51cf66' : '#ff922b';
+        if (statusIndicator) {
+            statusIndicator.className = `status-indicator status-${status}`;
+        }
+        if (statusText) {
+            statusText.textContent = status === 'good' ? 'Все параметры в норме' : 'Обнаружены отклонения';
+            statusText.style.color = status === 'good' ? '#51cf66' : '#ff922b';
+        }
     }
 
-    // Сброс анализа
+    // Сброс анализа (без изменений)
     function resetAnalysis() {
-        resultsPlaceholder.style.display = 'flex';
-        resultsContent.style.display = 'none';
-        detailedAnalysis.style.display = 'none';
+        console.log('Сброс анализа');
+        
+        if (resultsPlaceholder) resultsPlaceholder.style.display = 'flex';
+        if (resultsContent) resultsContent.style.display = 'none';
+        if (detailedAnalysis) detailedAnalysis.style.display = 'none';
         
         // Сбрасываем статус
-        statusBadge.className = 'status-badge status-idle';
-        statusBadge.textContent = 'Ожидает анализа';
+        if (statusBadge) {
+            statusBadge.className = 'status-badge status-idle';
+            statusBadge.textContent = 'Ожидает анализа';
+        }
         
-        statusIndicator.className = 'status-indicator status-idle';
-        statusText.textContent = 'Ожидание данных';
-        statusText.style.color = '#666';
+        if (statusIndicator) {
+            statusIndicator.className = 'status-indicator status-idle';
+        }
+        if (statusText) {
+            statusText.textContent = 'Ожидание данных';
+            statusText.style.color = '#666';
+        }
+        
+        // Очищаем таблицу сравнения
+        if (comparisonTable) comparisonTable.innerHTML = '';
+        if (recommendationsContent) recommendationsContent.innerHTML = '';
+        if (analysisDetails) analysisDetails.innerHTML = '';
     }
 
-    // Генерация отчета
+    // Генерация отчета (без изменений)
     function generateReport() {
         const motorModel = document.querySelector('.section-header h2').textContent;
         const analysisDate = new Date().toLocaleString('ru-RU');
@@ -404,6 +489,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация
     function init() {
         console.log('Система анализа двигателя инициализирована');
+        console.log('Номинальные значения (считаны из HTML):', referenceValues);
+        
+        // Показываем детали полученных значений
+        console.log('Детали номинальных значений:');
+        Object.keys(referenceValues).forEach(key => {
+            if (parameterUnits[key]) {
+                console.log(`  ${key}: ${referenceValues[key]} ${parameterUnits[key]}`);
+            }
+        });
+        
+        // Проверяем доступность всех элементов
+        const elements = {
+            'Форма': analysisForm,
+            'Плейсхолдер': resultsPlaceholder,
+            'Контент результатов': resultsContent,
+            'Таблица сравнения': comparisonTable
+        };
+        
+        for (const [name, element] of Object.entries(elements)) {
+            if (!element) {
+                console.error(`Элемент "${name}" не найден!`);
+            }
+        }
     }
 
     init();
