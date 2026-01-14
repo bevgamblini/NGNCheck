@@ -22,10 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContent: !!resultsContent
     });
 
-    // Функция для получения номинальных значений из HTML (упрощенная)
     function getNominalValuesFromHTML() {
-        console.log('Получение номинальных значений из HTML...');
-        
         const referenceValues = {};
         const nominalElements = document.querySelectorAll('.nominal-data');
         
@@ -34,39 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const rawValue = element.getAttribute('data-value');
             
             if (param && rawValue) {
-                // Так как в data-value только цифры, можно сразу парсить
                 const value = parseFloat(rawValue.trim());
                 if (!isNaN(value)) {
                     referenceValues[param] = value;
                     console.log(`Номинальное значение для ${param}: ${referenceValues[param]}`);
-                } else {
-                    console.warn(`Не удалось распарсить значение для ${param}: "${rawValue}"`);
                 }
             }
         });
-        
-        // Проверяем, что все значения получены
-        const requiredParams = ['current', 'vibration', 'temperature', 'isolation'];
-        const missingParams = requiredParams.filter(param => !referenceValues[param]);
-        
-        if (missingParams.length > 0) {
-            console.warn('Не все номинальные значения найдены, используются значения по умолчанию');
-            
-            // Значения по умолчанию
-            const defaultValues = {
-                current: 4.85,
-                vibration: 2.8,
-                temperature: 70,
-                isolation: 1.22
-            };
-            
-            // Используем значения по умолчанию для отсутствующих параметров
-            missingParams.forEach(param => {
-                referenceValues[param] = defaultValues[param];
-                console.log(`Используется значение по умолчанию для ${param}: ${referenceValues[param]}`);
-            });
-        }
-        
         return referenceValues;
     }
     
@@ -75,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Используемые номинальные значения:', referenceValues);
 
-    // Допустимые отклонения (%) - без напряжения
     const tolerances = {
         current: 10,      // ±10%
         vibration: 20,    // ±20%
@@ -83,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
         isolation: -30    // минимальный порог (-30% от номинала)
     };
 
-    // Описания параметров (без напряжения)
     const parameterNames = {
         current: 'Ток статора',
         vibration: 'Вибрация',
@@ -91,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
         isolation: 'Сопротивление изоляции'
     };
 
-    // Единицы измерения (без напряжения)
     const parameterUnits = {
         current: 'А',
         vibration: 'мм/с',
@@ -99,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
         isolation: 'МОм'
     };
 
-    // База знаний по неисправностям (убраны voltage_high и voltage_low)
     const faultDatabase = {
         current_high: {
             title: "Повышенный ток статора",
@@ -188,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Форма отправлена');
             
             try {
-                // Собираем данные из формы (без напряжения)
+                // Собираем данные из формы
                 const measuredValues = {
                     current: parseFloat(document.getElementById('current').value) || 0,
                     vibration: parseFloat(document.getElementById('vibration').value) || 0,
@@ -241,13 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Сохранение отчета
-    if (saveReportBtn) {
-        saveReportBtn.addEventListener('click', function() {
-            generateReport();
-        });
-    }
-
     // Печать отчета
     if (printReportBtn) {
         printReportBtn.addEventListener('click', function() {
@@ -255,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Функция анализа параметров (без напряжения)
+    // Функция анализа параметров
     function analyzeParameters(measured) {
         const results = [];
         const deviations = [];
@@ -269,7 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Расчет отклонения
             let deviation;
             if (param === 'isolation') {
-                // Для изоляции считаем снижение
                 deviation = ((measuredValue - referenceValue) / referenceValue) * 100;
             } else {
                 deviation = ((measuredValue - referenceValue) / referenceValue) * 100;
@@ -334,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Отображение результатов (без изменений в логике, только убраны ссылки на напряжение)
+    // Отображение результатов
     function displayResults(analysis) {
         console.log('Отображение результатов:', analysis);
         
@@ -426,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateStatus(analysis.overallStatus);
     }
 
-    // Обновление статуса (без изменений)
+    // Обновление статуса
     function updateStatus(status) {
         console.log('Обновление статуса:', status);
         
@@ -474,24 +433,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (analysisDetails) analysisDetails.innerHTML = '';
     }
 
-    // Генерация отчета (без изменений)
-    function generateReport() {
-        const motorModel = document.querySelector('.section-header h2').textContent;
-        const analysisDate = new Date().toLocaleString('ru-RU');
-        
-        // Здесь будет логика генерации PDF или сохранения данных
-        alert(`Отчет сгенерирован!\n\n` +
-              `Модель двигателя: ${motorModel}\n` +
-              `Дата анализа: ${analysisDate}\n\n` +
-              'Отчет готов к сохранению или печати.');
-    }
-
-    // Инициализация
     function init() {
         console.log('Система анализа двигателя инициализирована');
         console.log('Номинальные значения (считаны из HTML):', referenceValues);
         
-        // Показываем детали полученных значений
         console.log('Детали номинальных значений:');
         Object.keys(referenceValues).forEach(key => {
             if (parameterUnits[key]) {
@@ -499,7 +444,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Проверяем доступность всех элементов
         const elements = {
             'Форма': analysisForm,
             'Плейсхолдер': resultsPlaceholder,

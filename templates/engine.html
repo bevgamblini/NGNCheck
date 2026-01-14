@@ -5,20 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NGNCheck - Анализ двигателя</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/engine.css') }}">
-    <style>
-        /* Сбрасываем отступы для body */
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-    </style>
 </head>
 <body>
-    <!-- Шапка -->
     <header class="engine-header">
         <div class="container">
             <div class="header-content">
@@ -28,10 +16,6 @@
                 </a>
                 <h1 class="page-title">Анализ технического состояния</h1>
                 <div class="header-actions">
-                    <button class="action-button" id="saveReport">
-                        <i class="fas fa-save"></i>
-                        <span>Сохранить отчет</span>
-                    </button>
                     <button class="action-button" id="printReport">
                         <i class="fas fa-print"></i>
                         <span>Печать</span>
@@ -43,24 +27,18 @@
 
     <main class="engine-main">
         <div class="container">
-            <!-- Основной контент - две колонки -->
             <div class="main-content">
-                <!-- Левая колонка: Изображение и ввод данных -->
                 <div class="left-column">
-                    <!-- Информация о двигателе -->
                     <section class="motor-info-section">
                         <div class="section-header">
                             <h2>{% block motor_title %}{% endblock %}</h2>
                             <span class="status-badge status-idle">Ожидает анализа</span>
                         </div>
-                        
-                        <!-- Изображение двигателя -->
                         <div class="motor-image-large">
                             {% block motor_img %}{% endblock %}
                         </div>
                     </section>
 
-                    <!-- Ввод данных для анализа -->
                     <section class="input-section">
                         <h2>Введите измеренные параметры</h2>
                         <p class="section-description">Введите фактические значения для сравнения с номинальными характеристиками</p>
@@ -72,8 +50,8 @@
                                     Ток статора, А
                                 </label>
                                 <input type="number" id="current" step="0.1" placeholder="Введите значение тока" required>
-                                <div class="input-hint nominal-data" data-param="current" data-value="{{ nominal_current | default('4.85') }}">
-                                    Номинальное: {{ nominal_current | default('4.85') }} А
+                                <div class="input-hint nominal-data" data-param="current" data-value="{{ nominal_current }}">
+                                    Номинальное: {{ nominal_current }} А
                                 </div>
                             </div>
                             
@@ -83,8 +61,8 @@
                                     Вибрация, мм/с
                                 </label>
                                 <input type="number" id="vibration" step="0.1" placeholder="Введите значение вибрации" required>
-                                <div class="input-hint nominal-data" data-param="vibration" data-value="{{ nominal_vibration | default('2.8') }}">
-                                    Допустимое: {{ nominal_vibration | default('2.8') }} мм/с
+                                <div class="input-hint nominal-data" data-param="vibration" data-value="{{ nominal_vibration }}">
+                                    Допустимое: {{ nominal_vibration }} мм/с
                                 </div>
                             </div>
                             
@@ -94,8 +72,8 @@
                                     Температура подшипника, °C
                                 </label>
                                 <input type="number" id="temperature" step="0.1" placeholder="Введите температуру" required>
-                                <div class="input-hint nominal-data" data-param="temperature" data-value="{{ nominal_temperature | default('70') }}">
-                                    Допустимая: {{ nominal_temperature | default('70') }} °C
+                                <div class="input-hint nominal-data" data-param="temperature" data-value="{{ nominal_temperature }}">
+                                    Допустимая: {{ nominal_temperature }} °C
                                 </div>
                             </div>
                             
@@ -105,8 +83,8 @@
                                     Сопротивление изоляции, МОм
                                 </label>
                                 <input type="number" id="isolation" step="0.1" placeholder="Введите сопротивление" required>
-                                <div class="input-hint nominal-data" data-param="isolation" data-value="{{ nominal_isolation | default('1.22') }}">
-                                    Норма: {{ nominal_isolation | default('1.22') }} МОм
+                                <div class="input-hint nominal-data" data-param="isolation" data-value="{{ nominal_isolation }}">
+                                    Норма: {{ nominal_isolation }} МОм
                                 </div>
                             </div>
                             
@@ -154,7 +132,6 @@
                             <div class="comparison-section">
                                 <h3>Сравнение параметров</h3>
                                 <div class="comparison-table" id="comparisonTable">
-                                    <!-- Таблица будет заполнена JavaScript -->
                                 </div>
                             </div>
                             
@@ -162,7 +139,6 @@
                             <div class="recommendations-section">
                                 <h3>Диагностика и рекомендации</h3>
                                 <div class="recommendations-content" id="recommendationsContent">
-                                    <!-- Рекомендации будут заполнены JavaScript -->
                                 </div>
                             </div>
                             
@@ -170,7 +146,6 @@
                             <div class="detailed-analysis" id="detailedAnalysis">
                                 <h3>Детальный анализ отклонений</h3>
                                 <div class="analysis-details" id="analysisDetails">
-                                    <!-- Детали анализа будут заполнены JavaScript -->
                                 </div>
                             </div>
                         </div>
@@ -180,19 +155,16 @@
         </div>
     </main>
 
-    <!-- Футер -->
     <footer class="engine-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <h2>NGNCheck</h2>
+                    <h3>NGNCheck</h3>
+                    <p>Система анализа технического состояния электродвигателей</p>
                 </div>
                 <div class="footer-info">
-                    <p>Система анализа технического состояния электродвигателей</p>
                     <p>Курсовой проект по разработке графического интерфейса</p>
-                </div>
-                <div class="footer-copyright">
-                    <p>© 2026 Все права защищены</p>
+                    <p class="copyright">© 2026 Все права защищены</p>
                 </div>
             </div>
         </div>
@@ -201,4 +173,3 @@
     <script src="static/js/engine.js"></script>
 </body>
 </html>
-[file content end]

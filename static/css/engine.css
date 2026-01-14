@@ -1,6 +1,3 @@
-/* Стили для страницы engine.html */
-
-/* Сбрасываем отступы для всей страницы */
 html, body {
     margin: 0;
     padding: 0;
@@ -9,7 +6,6 @@ html, body {
     font-family: 'Roboto', sans-serif;
 }
 
-/* Основная структура */
 body {
     display: flex;
     flex-direction: column;
@@ -30,10 +26,9 @@ body {
     width: 100%;
 }
 
-/* Основной контент в две колонки */
 .main-content {
     display: grid;
-    grid-template-columns: 1fr 1.5fr; /* Правая колонка больше */
+    grid-template-columns: 1fr 1.5fr;
     gap: 30px;
     align-items: start;
 }
@@ -44,19 +39,16 @@ body {
     }
 }
 
-/* Левая колонка */
 .left-column {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
 
-/* Правая колонка */
 .right-column {
     height: 100%;
 }
 
-/* Шапка страницы */
 .engine-header {
     background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
     color: white;
@@ -85,6 +77,7 @@ body {
     padding: 10px 20px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
@@ -109,7 +102,7 @@ body {
 .action-button {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     padding: 10px 20px;
     background: rgba(255, 255, 255, 0.1);
     border: none;
@@ -124,7 +117,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Секция информации о двигателе */
 .motor-info-section {
     background: white;
     border-radius: 15px;
@@ -174,7 +166,6 @@ body {
     color: #721c24;
 }
 
-/* Большое изображение двигателя */
 .motor-image-large {
     position: relative;
     border-radius: 10px;
@@ -191,7 +182,6 @@ body {
     padding: 20px;
 }
 
-/* Секция ввода данных */
 .input-section {
     background: white;
     border-radius: 15px;
@@ -213,7 +203,6 @@ body {
     line-height: 1.5;
 }
 
-/* Форма анализа */
 .analysis-form {
     display: flex;
     flex-direction: column;
@@ -308,7 +297,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Секция результатов анализа */
 .analysis-results-section {
     background: white;
     border-radius: 15px;
@@ -370,7 +358,6 @@ body {
     font-weight: 500;
 }
 
-/* Заглушка результатов */
 .results-placeholder {
     flex: 1;
     display: flex;
@@ -415,7 +402,6 @@ body {
     line-height: 1.5;
 }
 
-/* Контент результатов */
 .results-content {
     flex: 1;
     display: flex;
@@ -442,7 +428,6 @@ body {
     font-weight: 600;
 }
 
-/* Таблица сравнения */
 .comparison-section {
     background: #f8f9fa;
     border-radius: 10px;
@@ -496,7 +481,6 @@ body {
     font-weight: 600;
 }
 
-/* Рекомендации */
 .recommendations-section {
     background: #fff9db;
     border-radius: 10px;
@@ -531,7 +515,6 @@ body {
     color: #333;
 }
 
-/* Детальный анализ */
 .detailed-analysis {
     background: #e7f5ff;
     border-radius: 10px;
@@ -571,53 +554,40 @@ body {
     line-height: 1.5;
 }
 
-/* Футер страницы (как на картинке) */
 .engine-footer {
-    background: #2c3e50;
+    background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
     color: white;
     padding: 40px 0;
     text-align: center;
-    width: 100%;
-    margin-top: auto;
 }
 
 .footer-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.footer-logo h2 {
-    font-size: 2.5rem;
-    margin: 0;
-    font-weight: 700;
-    background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+.footer-logo h3 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-.footer-info {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
+.footer-logo p {
+    opacity: 0.8;
+    margin-bottom: 20px;
 }
 
 .footer-info p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1.1rem;
-    line-height: 1.5;
+    margin-bottom: 10px;
+    opacity: 0.7;
 }
 
-.footer-copyright p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.6);
+.copyright {
+    opacity: 0.6;
     font-size: 0.9rem;
-    margin-top: 10px;
 }
 
 /* Адаптивность */
